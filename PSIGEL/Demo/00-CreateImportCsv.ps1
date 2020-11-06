@@ -9,7 +9,7 @@ $ImportIgelSerialNumber = '{0}\ImportIgelSerialNumber.csv' -f $DemoPath
 #endregion
 
 #region create Inventory list (procurement department)
-$InventoryColl = 1..$NumberOfDevice  | ForEach-Object { 
+$InventoryColl = 1..$NumberOfDevice  | ForEach-Object {
   [PSCustomObject]@{
     InventoryNumber = $InventoryNumberStart++
     SerialNumber    = '{0}{1}' -f $SerialNumberStart, $_.ToString("X3")
@@ -26,7 +26,7 @@ code $InventoryCsv
 #region create Import Igel SerialNumber list (IGEL reseller)
 # https://kb.igel.com/endpointmgmt-6.05/en/import-with-igel-serial-number-31599394.html
 
-$ImportIgelSerialNumberColl = 1..$NumberOfDevice  | ForEach-Object { 
+$ImportIgelSerialNumberColl = 1..$NumberOfDevice  | ForEach-Object {
   [PSCustomObject]@{
     0            = ''
     SerialNumber = '{0}{1}' -f $SerialNumberStart, $_.ToString("X3")

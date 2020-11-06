@@ -53,7 +53,8 @@ $InventoryColl
 #endregion
 
 #region Join Igel SerialNumber and Inventory List
-# http://ramblingcookiemonster.github.io/Join-Object/ or part of https://github.com/falkheiland/CommonTools
+# http://ramblingcookiemonster.github.io/Join-Object/
+# or part of https://github.com/falkheiland/CommonTools
 
 Import-Module -FullyQualifiedName C:\GitHub\CommonTools\CommonTools\CommonTools.psd1
 
@@ -74,7 +75,8 @@ $NewDeviceColl
 #region Create the new devices
 
 $DevicePrefix = 'DEV-'
-$FirmwareId = (Get-UMSFirmware | Sort-Object -Property Version -Descending | Select-Object -First 1).Id
+$FirmwareId = (Get-UMSFirmware | Sort-Object -Property Version -Descending |
+    Select-Object -First 1).Id
 
 $CreatedDeviceColl = foreach ($NewDevice in $NewDeviceColl)
 {

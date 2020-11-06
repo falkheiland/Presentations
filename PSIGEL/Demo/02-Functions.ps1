@@ -30,15 +30,18 @@ Get-UMSStatus
 #region Create new device directories
 # with names SanFrancisco", Bremen, Augsburg and Leipzig
 
-$NewDeviceDirectoryColl = 'SanFrancisco', 'Bremen', 'Augsburg', 'Leipzig' | New-UMSDeviceDirectory
+$NewDeviceDirectoryColl = 'SanFrancisco', 'Bremen', 'Augsburg', 'Leipzig' |
+  New-UMSDeviceDirectory
 $NewDeviceDirectoryColl
 
 #endregion
 
 #region Create new device
-# with Mac address '00E0C5235064' and the latest firmware, using all supported properties
+# with Mac address '00E0C5235064' and the latest firmware,
+# using all supported properties
 
-$LatestFirmware = (Get-UMSFirmware) | Sort-Object -Property Version -Descending |
+$LatestFirmware = (Get-UMSFirmware) |
+  Sort-Object -Property Version -Descending |
   Select-Object -First 1
 
 $Parent = ((Get-UMSDeviceDirectory).where{ $_.Name -eq 'Leipzig' })[0]
@@ -177,7 +180,11 @@ $Accessories01 = (Get-UMSProfile).where{
   $_.Name -eq '02-Accessories|01'
 }
 
-$Sessions01 | New-UMSProfileAssignment -ReceiverId $DeviceDirectoryAugsburg.Id -ReceiverType tcdirectory
+$NewUMSProfileAssignmentParams = @{
+  ReceiverId   = $DeviceDirectoryAugsburg.Id
+  ReceiverType = tcdirectory
+}
+$Sessions01 | New-UMSProfileAssignment @NewUMSProfileAssignmentParams
 
 $DeviceHRColl.ForEach{
   $Sessions01 | New-UMSProfileAssignment -ReceiverId $_.Id -ReceiverType tc
@@ -186,7 +193,7 @@ $DeviceHRColl.ForEach{
 (Get-UMSDevice).where{
   $_.Name -in 'DEV-1001, DEV-1040', 'DEV-1043'
 } | ForEach-Object {
-  $Accessories01 |  New-UMSProfileAssignment -ReceiverId $_.Id -ReceiverType tc
+  $Accessories01 | New-UMSProfileAssignment -ReceiverId $_.Id -ReceiverType tc
 }
 
 #endregion
@@ -195,22 +202,29 @@ $DeviceHRColl.ForEach{
 # create, move, update and remove device in one pipeline
 
 New-UMSDevice -Mac 001122334455 -FirmwareId 1 |
-  Move-UMSDevice -DestId ((Get-UMSDeviceDirectory).where{ $_.Name -eq 'Leipzig' }).Id -Confirm:$true |
-  Update-UMSDevice -Name DEV-Leipzig01 -Confirm:$true | Reset-UMSDevice | Remove-UMSDevice
+  Move-UMSDevice -DestId ((Get-UMSDeviceDirectory).where{
+      $_.Name -eq 'Leipzig'
+    }).Id -Confirm:$true |
+  Update-UMSDevice -Name DEV-Leipzig01 -Confirm:$true |
+  Reset-UMSDevice | Remove-UMSDevice
 
 #endregion
 
 #region Get devices in directory with name Leipzig
 
-(Get-UMSDeviceDirectory -Filter children).where{ $_.Name -eq 'Leipzig' }.DirectoryChildren | Get-UMSDevice
+(Get-UMSDeviceDirectory -Filter children).where{
+  $_.Name -eq 'Leipzig'
+}.DirectoryChildren | Get-UMSDevice
 
 #endregion
 
 #region Get device assignment for profile '01-Sessions|01'
 
 $ProfileAssignment = @(
-  (Get-UMSProfile).where{ $_.Name -eq '01-Sessions|01' } | Get-UMSProfileAssignment
-  (Get-UMSProfile).where{ $_.Name -eq '01-Sessions|01' } | Get-UMSProfileAssignment -Directory
+  (Get-UMSProfile).where{ $_.Name -eq '01-Sessions|01' } |
+    Get-UMSProfileAssignment
+  (Get-UMSProfile).where{ $_.Name -eq '01-Sessions|01' } |
+    Get-UMSProfileAssignment -Directory
 )
 $ProfileAssignment
 
@@ -234,8 +248,10 @@ Get-UMSDirectoryRecursive @UMSDirectoryRecursive
 
 #region region Remove all elements
 
-Get-UMSProfile | Get-UMSProfileAssignment | Remove-UMSProfileAssignment -Confirm:$false
-Get-UMSProfile | Get-UMSProfileAssignment -Directory | Remove-UMSProfileAssignment -Confirm:$false
+Get-UMSProfile | Get-UMSProfileAssignment |
+  Remove-UMSProfileAssignment -Confirm:$false
+Get-UMSProfile | Get-UMSProfileAssignment -Directory |
+  Remove-UMSProfileAssignment -Confirm:$false
 Get-UMSProfile | Remove-UMSProfile
 Get-UMSProfileDirectory | Remove-UMSProfileDirectory -Confirm:$false
 Get-UMSDevice | Remove-UMSDevice -Confirm:$false

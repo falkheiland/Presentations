@@ -13,14 +13,17 @@ if (($PSEdition -eq 'Core' -and $IsWindows) -or ($PSEdition -eq 'Desktop' -and (
 {
   # PS7 on Windows or Windows PowerShell 5.1
   Import-Module -FullyQualifiedName ('C:\{0}' -f $PSIGELPath) -Force
-  $PSDefaultParameterValues.Add('New-UMSAPICookie:Credential', (Import-Clixml -Path 'C:\Credentials\UmsRmdb.cred'))
+  $PSDefaultParameterValues.Add('New-UMSAPICookie:Credential',
+    (Import-Clixml -Path 'C:\Credentials\UmsRmdb.cred'))
 }
 elseif ($PSEdition -eq 'core' -and (-Not $IsWindows) )
 {
   # PS7 on Linux OR MacOS
   Import-Module -FullyQualifiedName ('/mnt/c/{0}' -f $PSIGELPath) -Force
-  # Dont use the following method in production, since on linux the clixml file is not encrypted
-  $PSDefaultParameterValues.Add('New-UMSAPICookie:Credential', (Import-Clixml -Path '/mnt/c/Credentials/UmsRmdbWsl.cred'))
+  # Dont use the following method in production,
+  # since on linux the clixml file is not encrypted
+  $PSDefaultParameterValues.Add('New-UMSAPICookie:Credential',
+    (Import-Clixml -Path '/mnt/c/Credentials/UmsRmdbWsl.cred'))
 }
 
 $WebSession = New-UMSAPICookie
