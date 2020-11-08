@@ -94,5 +94,7 @@ $CreatedDeviceColl
 #endregion
 
 #region Remove the used websession
+
 $null = Remove-UMSAPICookie
+
 #endregion

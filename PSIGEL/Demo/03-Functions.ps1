@@ -37,7 +37,7 @@ $NewDeviceDirectoryColl
 #endregion
 
 #region Create new device
-# with Mac address '00E0C5235064' and the latest firmware,
+# with Mac address '00E0C5235065' and the latest firmware,
 # using all supported properties
 
 $LatestFirmware = (Get-UMSFirmware) |
@@ -182,7 +182,7 @@ $Accessories01 = (Get-UMSProfile).where{
 
 $NewUMSProfileAssignmentParams = @{
   ReceiverId   = $DeviceDirectoryAugsburg.Id
-  ReceiverType = tcdirectory
+  ReceiverType = 'tcdirectory'
 }
 $Sessions01 | New-UMSProfileAssignment @NewUMSProfileAssignmentParams
 
@@ -191,7 +191,7 @@ $DeviceHRColl.ForEach{
 }
 
 (Get-UMSDevice).where{
-  $_.Name -in 'DEV-1001, DEV-1040', 'DEV-1043'
+  $_.Name -in 'DEV-1001', 'DEV-1040', 'DEV-1043'
 } | ForEach-Object {
   $Accessories01 | New-UMSProfileAssignment -ReceiverId $_.Id -ReceiverType tc
 }
@@ -252,7 +252,7 @@ Get-UMSProfile | Get-UMSProfileAssignment |
   Remove-UMSProfileAssignment -Confirm:$false
 Get-UMSProfile | Get-UMSProfileAssignment -Directory |
   Remove-UMSProfileAssignment -Confirm:$false
-Get-UMSProfile | Remove-UMSProfile
+Get-UMSProfile | Remove-UMSProfile -Confirm:$false
 Get-UMSProfileDirectory | Remove-UMSProfileDirectory -Confirm:$false
 Get-UMSDevice | Remove-UMSDevice -Confirm:$false
 Get-UMSDeviceDirectory | Remove-UMSDeviceDirectory -Confirm:$false
