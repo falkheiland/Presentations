@@ -28,7 +28,7 @@ Get-UMSStatus
 #endregion
 
 #region Create new device directories
-# with names SanFrancisco", Bremen, Augsburg and Leipzig
+# with names SanFrancisco, Bremen, Augsburg and Leipzig
 
 $NewDeviceDirectoryColl = 'SanFrancisco', 'Bremen', 'Augsburg', 'Leipzig' |
   New-UMSDeviceDirectory
