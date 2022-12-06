@@ -1,4 +1,5 @@
 */Drafts/*
 .vscode/launch.json
-*/*.code-workspace
-*.tmp
+**.code-workspace
+**.html
+**.tmp

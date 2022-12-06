@@ -1,0 +1,48 @@
+api:
+  dashboard: true
+  insecure: true
+  debug: true
+
+entrypoints:
+  http:
+    address: ":80"
+  https:
+    address: ":443"
+  srauth:
+    address: ":8091"
+  srwebcon:
+    address: ":8092"
+
+providers:
+  docker:
+    constraints: "Label(`traefik.constraint-label`, `proxy`)"
+    swarmMode: true
+    endpoint: "unix:///var/run/docker.sock"
+    exposedbydefault: false
+    network: "proxy"
+  file:
+    filename: "/etc/traefik/dyn.yml"
+    watch: true
+
+log:
+  filePath: "/var/log/traefik.log"
+  format: json
+  level: "ERROR" #DEBUG
+
+# Limiting the Logs to Specific Fields
+accessLog:
+  filePath: "/var/log/access.log"
+  format: json
+  fields:
+    defaultMode: keep
+    names:
+      ClientUsername: drop
+    headers:
+      defaultMode: keep
+      names:
+        User-Agent: keep #redact
+        Authorization: keep #drop
+        Content-Type: keep
+
+serversTransport:
+  insecureSkipVerify: true

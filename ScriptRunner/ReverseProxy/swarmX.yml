@@ -1,0 +1,21 @@
+version: "3.8"
+services:
+  traefik:
+    volumes:
+      - /mnt/gv0/stack-traefik/configuration/swarmX/traefik/traefik.yml:/etc/traefik/traefik.yml
+      - /mnt/gv0/stack-traefik/configuration/swarmX/traefik/dyn.yml:/etc/traefik/dyn.yml
+      - /mnt/gv0/stack-traefik/data/swarmX/traefik/certs/:/etc/certs/
+      - /mnt/gv0/stack-traefik/data/swarmX/traefik/logs:/var/log/
+    deploy:
+      labels:
+        - "traefik.http.routers.traefik.entrypoints=http"
+        - "traefik.http.routers.traefik.rule=HostRegexp(`{subdomain:swarm[A-Z]+}.domain.tld`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`) || PathPrefix(`/metrics`))"
+        - "traefik.http.routers.traefik.middlewares=default-https-redirect@file"
+        - "traefik.http.routers.traefik-secure.entrypoints=https"
+        - "traefik.http.routers.traefik-secure.rule=HostRegexp(`{subdomain:swarm[A-Z]+}.domain.tld`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`) || PathPrefix(`/metrics`))"
+        - "traefik.http.routers.traefik-secure.middlewares=default-auth@file"
+        - "traefik.http.routers.traefik-secure.tls=true"
+        - "traefik.http.routers.traefik-secure.tls.domains.main=`domain.tld`"
+        - "traefik.http.routers.traefik-secure.tls.domains.sans=`*.domain.tld`"
+        - "traefik.http.routers.traefik-secure.service=api@internal"
+        - "traefik.http.services.traefik.loadbalancer.server.port=8080"

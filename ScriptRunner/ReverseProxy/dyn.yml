@@ -1,0 +1,155 @@
+# dynamic configuration
+# dyn.yml
+
+tls:
+  options:
+    default:
+      minVersion: VersionTLS12
+      cipherSuites:
+        - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        - TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305
+        - TLS_AES_128_GCM_SHA256
+        - TLS_AES_256_GCM_SHA384
+        - TLS_CHACHA20_POLY1305_SHA256
+      curvePreferences:
+        - CurveP521
+        - CurveP384
+      sniStrict: true
+  certificates:
+    - certFile: /etc/certs/domain.tld.crt
+      keyFile: /etc/certs/domain.tld.key
+
+http:
+  middlewares:
+    secHeaders:
+      headers:
+        browserXssFilter: true
+        contentTypeNosniff: true
+        frameDeny: true
+        sslRedirect: true
+        #HSTS Configuration
+        stsIncludeSubdomains: true
+        stsPreload: true
+        stsSeconds: 31536000
+        customFrameOptionsValue: SAMEORIGIN
+    default-https-redirect:
+      redirectScheme:
+        scheme: https
+        permanent: true
+    sr-admin-ipwhitelist:
+      ipwhitelist:
+        sourceRange:
+          - "192.168.1.0/24" # Management
+
+  routers:
+    srportal:
+      entryPoints:
+        - "http"
+      rule: "(Host(`host.domain.tld`) && PathPrefix(`/scriptrunner/portal/`))"
+      middlewares:
+        - default-https-redirect@file
+      service: srportal
+    srportal-https:
+      entryPoints:
+        - "https"
+      rule: "(Host(`host.domain.tld`) && PathPrefix(`/scriptrunner/portal/`))"
+      tls:
+        - true
+      middlewares:
+        - secHeaders@file
+      service: srportal-https
+    sradmin:
+      entryPoints:
+        - "http"
+      rule: "(Host(`host.domain.tld`) && PathPrefix(`/scriptrunner/admin/`))"
+      middlewares:
+        - default-https-redirect@file
+      service: sradmin
+    sradmin-https:
+      entryPoints:
+        - "https"
+      rule: "(Host(`host.domain.tld`) && PathPrefix(`/scriptrunner/admin/`))"
+      tls:
+        - true
+      middlewares:
+        - secHeaders@file
+        - sr-admin-ipwhitelist
+      service: sradmin-https
+    srreports:
+      entryPoints:
+        - "http"
+      rule: "(Host(`host.domain.tld`) && PathPrefix(`/ScriptRunner/reports/`))"
+      middlewares:
+        - default-https-redirect@file
+      service: sradmin
+    srreports-https:
+      entryPoints:
+        - "https"
+      rule: "(Host(`host.domain.tld`) && PathPrefix(`/ScriptRunner/reports/`))"
+      tls:
+        - true
+      middlewares:
+        - secHeaders@file
+      service: sradmin-https
+
+  services:
+    srportal:
+      loadBalancer:
+        servers:
+          - url: "http://sr-server.domain.tld/scriptrunner/portal/"
+        passHostHeader: true
+    srportal-https:
+      loadBalancer:
+        servers:
+          - url: "https://sr-server.domain.tld/scriptrunner/portal/"
+        passHostHeader: true
+    sradmin:
+      loadBalancer:
+        servers:
+          - url: "http://sr-server.domain.tld/scriptrunner/admin/"
+        passHostHeader: true
+    sradmin-https:
+      loadBalancer:
+        servers:
+          - url: "https://sr-server.domain.tld/scriptrunner/admin/"
+        passHostHeader: true
+    srreports:
+      loadBalancer:
+        servers:
+          - url: "http://sr-server.domain.tld/scriptrunner/reports/"
+        passHostHeader: true
+    srreports-https:
+      loadBalancer:
+        servers:
+          - url: "https://sr-server.domain.tld/scriptrunner/reports/"
+        passHostHeader: true
+
+tcp:
+  routers:
+    srportal-srauth:
+      entryPoints:
+        - "srauth"
+      rule: "HostSNI(`host.domain.tld`)"
+      tls:
+        options: default
+        passthrough: true
+      service: srportal-srauth
+    srportal-srwebcon:
+      entryPoints:
+        - "srwebcon"
+      rule: "HostSNI(`host.domain.tld`)"
+      tls:
+        options: default
+        passthrough: true
+      service: srportal-srwebcon
+
+  services:
+    srportal-srauth:
+      loadBalancer:
+        servers:
+          - address: "sr-server.domain.tld:8091"
+    srportal-srwebcon:
+      loadBalancer:
+        servers:
+          - address: "sr-server.domain.tld:8092"
