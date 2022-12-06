@@ -38,7 +38,9 @@ graph LR
   end
 
   subgraph Public;
-  ReverseProxy{{traefik}}
+  subgraph Docker Swarm Mode;
+    ReverseProxy{{traefik}}
+  end
   Service([Service Desk Users])
   User([Self-Service End User])
   end
